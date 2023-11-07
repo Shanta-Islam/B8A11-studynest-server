@@ -28,6 +28,7 @@ async function run() {
     // await client.connect();
     const assignmentsCollection = client.db('studyNest').collection('assignments');
     const submittedAssignmentCollection = client.db('studyNest').collection('submittedAssignments');
+    const markedAssignmentCollection = client.db('studyNest').collection('markedAssignment');
 
 
 
@@ -44,6 +45,13 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const product = await assignmentsCollection.findOne(query);
       res.send(product);
+
+    })
+    app.get('/submitted-assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await submittedAssignmentCollection.findOne(query);
+      res.send(result);
 
     })
     app.get('/submitted-assignment', async (req, res) => {
@@ -64,6 +72,12 @@ async function run() {
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
       res.send(result);
       console.log(submittedAssign)
+    });
+    app.post('/marked-assignment', async (req, res) => {
+      const markedAssign = req.body;
+      const result = await markedAssignmentCollection.insertOne(markedAssign);
+      res.send(result);
+      console.log(markedAssign)
     });
     app.put('/updated-assignment/:id', async (req, res) => {
       const id = req.params.id;
