@@ -61,6 +61,17 @@ async function run() {
       res.send(result);
 
     })
+    app.get('/marked-assignment', async (req, res) => {
+      let query = {};
+      if(req.query?.email){
+        query = {ExamineeEmail: req.query.email}
+      }
+      const result = await markedAssignmentCollection.find(query).toArray();
+      // console.log(storeProducts)
+      res.send(result);
+      console.log(result)
+
+    })
     app.post('/assignments', async (req, res) => {
       const newAssignment = req.body;
       const result = await assignmentsCollection.insertOne(newAssignment);
