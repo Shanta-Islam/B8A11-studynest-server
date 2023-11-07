@@ -65,7 +65,28 @@ async function run() {
       res.send(result);
       console.log(submittedAssign)
     });
-
+    app.put('/updated-assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      // let query = {};
+      // if(req.query?.email){
+      //   query = {email: req.query.email}
+      // }
+      const options = { upsert: true };
+      const updatedAssignment = req.body;
+      const assignment = {
+        $set: {
+          title: updatedAssignment.title,
+          desc: updatedAssignment.desc,
+          marks: updatedAssignment.marks,
+          photo: updatedAssignment.photo,
+          dLevel: updatedAssignment.dLevel,
+          date: updatedAssignment.date
+        }
+      }
+      const result = await assignmentsCollection.updateOne(filter, assignment, options);
+      res.send(result);
+    })
     app.delete('/delete-assignment/:email', async (req, res) => {
       const userEmail = req.params.email;
       const query = { email: userEmail };
