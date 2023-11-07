@@ -56,10 +56,13 @@ async function run() {
     })
     app.get('/submitted-assignment', async (req, res) => {
       let query = {};
+      if(req.query?.status){
+        query = {statusValue: req.query.status}
+      }
       const result = await submittedAssignmentCollection.find(query).toArray();
       // console.log(storeProducts)
       res.send(result);
-
+      // console.log(result)
     })
     app.get('/marked-assignment', async (req, res) => {
       let query = {};
@@ -69,27 +72,42 @@ async function run() {
       const result = await markedAssignmentCollection.find(query).toArray();
       // console.log(storeProducts)
       res.send(result);
-      console.log(result)
+      // console.log(result)
 
     })
+
     app.post('/assignments', async (req, res) => {
       const newAssignment = req.body;
       const result = await assignmentsCollection.insertOne(newAssignment);
       res.send(result);
 
     })
+
     app.post('/submitted-assignment', async (req, res) => {
       const submittedAssign = req.body;
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
       res.send(result);
-      console.log(submittedAssign)
     });
+
     app.post('/marked-assignment', async (req, res) => {
       const markedAssign = req.body;
       const result = await markedAssignmentCollection.insertOne(markedAssign);
       res.send(result);
-      console.log(markedAssign)
     });
+
+    app.patch('/submitted-assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedStatus = req.body;
+      const statusSet = {
+        $set: {
+          statusValue : updatedStatus.statusValue
+        }
+      }
+      const result = await submittedAssignmentCollection.updateOne(filter, statusSet);
+      res.send(result);
+    });
+
     app.put('/updated-assignment/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
@@ -112,6 +130,7 @@ async function run() {
       const result = await assignmentsCollection.updateOne(filter, assignment, options);
       res.send(result);
     })
+
     app.delete('/delete-assignment/:email', async (req, res) => {
       const userEmail = req.params.email;
       const query = { email: userEmail };
