@@ -13,7 +13,6 @@ app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.onvejqf.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -29,8 +28,8 @@ async function run() {
     // await client.connect();
     const assignmentsCollection = client.db('studyNest').collection('assignments');
     const submittedAssignmentCollection = client.db('studyNest').collection('submittedAssignments');
-    
-    
+
+
 
 
 
@@ -53,19 +52,27 @@ async function run() {
       // console.log(storeProducts)
       res.send(result);
 
-    }) 
+    })
     app.post('/assignments', async (req, res) => {
       const newAssignment = req.body;
       const result = await assignmentsCollection.insertOne(newAssignment);
       res.send(result);
-      
+
     })
     app.post('/submitted-assignment', async (req, res) => {
       const submittedAssign = req.body;
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
-      res.send(result); 
+      res.send(result);
       console.log(submittedAssign)
     });
+
+    app.delete('/delete-assignment/:email', async (req, res) => {
+      const userEmail = req.params.email;
+      const query = { email: userEmail };
+      const result = await assignmentsCollection.deleteOne(query);
+      res.send(result);
+
+    })
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
