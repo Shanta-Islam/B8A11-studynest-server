@@ -53,7 +53,7 @@ async function run() {
       // console.log(storeProducts)
       res.send(result);
 
-    })
+    }) 
     app.post('/assignments', async (req, res) => {
       const newAssignment = req.body;
       const result = await assignmentsCollection.insertOne(newAssignment);
