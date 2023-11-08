@@ -34,6 +34,8 @@ async function run() {
 
 
 
+
+
     app.get('/assignments', async (req, res) => {
       const query = {};
       const cursor = assignmentsCollection.find(query);
@@ -56,8 +58,8 @@ async function run() {
     })
     app.get('/submitted-assignment', async (req, res) => {
       let query = {};
-      if(req.query?.status){
-        query = {statusValue: req.query.status}
+      if (req.query?.status) {
+        query = { statusValue: req.query.status }
       }
       const result = await submittedAssignmentCollection.find(query).toArray();
       // console.log(storeProducts)
@@ -66,11 +68,10 @@ async function run() {
     })
     app.get('/marked-assignment', async (req, res) => {
       let query = {};
-      if(req.query?.email){
-        query = {ExamineeEmail: req.query.email}
+      if (req.query?.email) {
+        query = { ExamineeEmail: req.query.email }
       }
       const result = await markedAssignmentCollection.find(query).toArray();
-      // console.log(storeProducts)
       res.send(result);
       // console.log(result)
 
@@ -101,7 +102,7 @@ async function run() {
       const updatedStatus = req.body;
       const statusSet = {
         $set: {
-          statusValue : updatedStatus.statusValue
+          statusValue: updatedStatus.statusValue
         }
       }
       const result = await submittedAssignmentCollection.updateOne(filter, statusSet);
@@ -131,12 +132,22 @@ async function run() {
       res.send(result);
     })
 
-    app.delete('/delete-assignment/:email', async (req, res) => {
-      const userEmail = req.params.email;
-      const query = { email: userEmail };
-      const result = await assignmentsCollection.deleteOne(query);
-      res.send(result);
+    app.delete('/delete-assignment/:id', async (req, res) => {
+      const id = req.params.id;
+      // const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
+      // res.send(assignment);
 
+      // console.log(assignment)
+      try {
+        const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
+        if (assignment) {
+          res.send(assignment);
+        } else {
+          res.status(404).json({ message: 'Product not found for the requesting user' });
+        }
+      } catch (err) {
+        res.status(500).json({ message: err.message });
+      }
     })
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
