@@ -79,7 +79,7 @@ async function run() {
 
 
      // auth related api
-    app.post('/jwt', logger, async (req, res) => {
+    app.post('/jwt', logger, verifyToken, async (req, res) => {
       const user = req.body;
       console.log('user for token', user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
@@ -154,19 +154,19 @@ async function run() {
 
     })
 
-    app.post('/submitted-assignment', async (req, res) => {
+    app.post('/submitted-assignment', verifyToken,async (req, res) => {
       const submittedAssign = req.body;
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
       res.send(result);
     });
 
-    app.post('/marked-assignment', async (req, res) => {
+    app.post('/marked-assignment', verifyToken,async (req, res) => {
       const markedAssign = req.body;
       const result = await markedAssignmentCollection.insertOne(markedAssign);
       res.send(result);
     });
 
-    app.patch('/submitted-assignment/:id', async (req, res) => {
+    app.patch('/submitted-assignment/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updatedStatus = req.body;
@@ -179,7 +179,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put('/updated-assignment/:id', async (req, res) => {
+    app.put('/updated-assignment/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true };
@@ -198,7 +198,7 @@ async function run() {
       res.send(result);
     })
 
-    app.delete('/delete-assignment/:id', async (req, res) => {
+    app.delete('/delete-assignment/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       try {
         const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
