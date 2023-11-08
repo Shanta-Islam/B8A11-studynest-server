@@ -112,9 +112,7 @@ async function run() {
         query = { statusValue: req.query.status }
       }
       const result = await submittedAssignmentCollection.find(query).toArray();
-      // console.log(storeProducts)
       res.send(result);
-      // console.log(result)
     })
     app.get('/marked-assignment', logger, verifyToken, async (req, res) => {
       console.log('owner info', req.user);
@@ -166,10 +164,6 @@ async function run() {
     app.put('/updated-assignment/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
-      // let query = {};
-      // if(req.query?.email){
-      //   query = {email: req.query.email}
-      // }
       const options = { upsert: true };
       const updatedAssignment = req.body;
       const assignment = {
@@ -188,10 +182,6 @@ async function run() {
 
     app.delete('/delete-assignment/:id', async (req, res) => {
       const id = req.params.id;
-      // const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
-      // res.send(assignment);
-
-      // console.log(assignment)
       try {
         const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
         if (assignment) {
