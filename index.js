@@ -9,14 +9,31 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors(
-  {
-    origin: [
-      'http://localhost:5173',
-    ],
-    credentials: true
-  }
-));
+app.use(cors({
+  origin: [
+    'https://studynest-c3658.web.app/',
+    'https://studynest-c3658.firebaseapp.com/',
+    'http://localhost:5000/'
+  ], // Replace with your origin
+  methods: 'GET, POST, DELETE', // Adjust with the methods you're using
+  allowedHeaders: 'Content-Type, Authorization',
+  credentials: true
+}));
+// app.use(cors(
+//   {
+//     origin: [
+//       'https://studynest-c3658.web.app/',
+//       'https://studynest-c3658.firebaseapp.com/'
+//     ],
+//     methods: 'GET, POST, DELETE',
+//     credentials: true
+//   }
+// ));
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
 app.use(express.json());
 app.use(cookieParser());
 
