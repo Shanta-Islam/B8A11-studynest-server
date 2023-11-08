@@ -15,7 +15,7 @@ app.use(cors({
     'https://studynest-c3658.firebaseapp.com/',
     'http://localhost:5173/'
   ], // Replace with your origin
-  methods: 'GET, POST, DELETE', // Adjust with the methods you're using
+  methods: 'GET, PATCH, PUT, POST, DELETE', // Adjust with the methods you're using
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true
 })); 
