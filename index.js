@@ -13,7 +13,7 @@ app.use(cors({
   origin: [
     'https://studynest-c3658.web.app/',
     'https://studynest-c3658.firebaseapp.com/',
-    'http://localhost:5000/'
+    'http://localhost:5173/'
   ], // Replace with your origin
   methods: 'GET, POST, DELETE', // Adjust with the methods you're using
   allowedHeaders: 'Content-Type, Authorization',
