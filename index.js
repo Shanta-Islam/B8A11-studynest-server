@@ -38,10 +38,16 @@ async function run() {
 
     app.get('/assignments', async (req, res) => {
       const query = {};
-      const cursor = assignmentsCollection.find(query);
+      const cursor = await assignmentsCollection.find(query);
       const assignments = await cursor.toArray();
       res.send(assignments);
     });
+    app.get('/assignmentsCount', async (req, res) => {
+      const count = await assignmentsCollection.estimatedDocumentCount();
+      res.send({count});
+    });
+    
+    
     app.get('/assignment-details/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
