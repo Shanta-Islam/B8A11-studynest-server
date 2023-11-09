@@ -110,7 +110,7 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await submittedAssignmentCollection.findOne(query);
       res.send(result);
-
+ 
     })
     app.get('/submitted-assignment', verifyToken, async (req, res) => {
       let query = {};
