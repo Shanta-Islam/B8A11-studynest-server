@@ -1,10 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const cookieParse = require('cookie-parser');
-require('dotenv').config();
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cookieParser = require('cookie-parser');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -22,19 +21,21 @@ const port = process.env.PORT || 5000;
 app.use(cors(
   {
     origin: [
-      'https://studynest-c3658.web.app/',
-      'https://studynest-c3658.firebaseapp.com/',
-      'http://localhost:5173/'
+      'http://localhost:5173',
+      'https://studynest-c3658.web.app',
+      'https://studynest-c3658.firebaseapp.com'
+      
     ],
     methods: 'GET, PATCH, PUT, POST, DELETE',
     credentials: true
   }
 ));
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
-});
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
 app.use(express.json());
 app.use(cookieParser());
 
@@ -83,12 +84,12 @@ async function run() {
       const user = req.body;
       console.log('user for token', user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-
       res.cookie('token', token, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'none' 
-      })
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+
+    })
         .send({ success: true })
     })
 
@@ -154,19 +155,19 @@ async function run() {
 
     })
 
-    app.post('/submitted-assignment', verifyToken,async (req, res) => {
+    app.post('/submitted-assignment',async (req, res) => {
       const submittedAssign = req.body;
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
       res.send(result);
     });
 
-    app.post('/marked-assignment', verifyToken,async (req, res) => {
+    app.post('/marked-assignment',async (req, res) => {
       const markedAssign = req.body;
       const result = await markedAssignmentCollection.insertOne(markedAssign);
       res.send(result);
     });
 
-    app.patch('/submitted-assignment/:id', verifyToken, async (req, res) => {
+    app.patch('/submitted-assignment/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updatedStatus = req.body;
@@ -179,7 +180,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put('/updated-assignment/:id', verifyToken, async (req, res) => {
+    app.put('/updated-assignment/:id', async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true };
@@ -198,7 +199,7 @@ async function run() {
       res.send(result);
     })
 
-    app.delete('/delete-assignment/:id', verifyToken, async (req, res) => {
+    app.delete('/delete-assignment/:id', async (req, res) => {
       const id = req.params.id;
       try {
         const assignment = await assignmentsCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
