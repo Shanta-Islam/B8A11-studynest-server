@@ -98,21 +98,21 @@ async function run() {
     });
 
 
-    app.get('/assignment-details/:id', async (req, res) => {
+    app.get('/assignment-details/:id',verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const product = await assignmentsCollection.findOne(query);
       res.send(product);
 
     })
-    app.get('/submitted-assignment/:id', async (req, res) => {
+    app.get('/submitted-assignment/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await submittedAssignmentCollection.findOne(query);
       res.send(result);
 
     })
-    app.get('/submitted-assignment', async (req, res) => {
+    app.get('/submitted-assignment', verifyToken, async (req, res) => {
       let query = {};
       if (req.query?.status) {
         query = { statusValue: req.query.status }
