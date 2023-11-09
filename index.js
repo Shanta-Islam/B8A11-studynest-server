@@ -8,16 +8,7 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-// app.use(cors({
-//   origin: [
-//     'https://studynest-c3658.web.app/',
-//     'https://studynest-c3658.firebaseapp.com/',
-//     'http://localhost:5173/'
-//   ], // Replace with your origin
-//   methods: 'GET, PATCH, PUT, POST, DELETE', // Adjust with the methods you're using
-//   allowedHeaders: 'Content-Type, Authorization',
-//   credentials: true
-// })); 
+
 app.use(cors(
   {
     origin: [
@@ -31,11 +22,6 @@ app.use(cors(
   }
 ));
 
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-//   next();
-// });
 app.use(express.json());
 app.use(cookieParser());
 
@@ -80,7 +66,7 @@ async function run() {
 
 
      // auth related api
-    app.post('/jwt', logger, verifyToken, async (req, res) => {
+    app.post('/jwt', logger, async (req, res) => {
       const user = req.body;
       console.log('user for token', user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
@@ -90,7 +76,7 @@ async function run() {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 
     })
-        .send({ success: true })
+        res.send({ success: true })
     })
 
 
@@ -135,7 +121,7 @@ async function run() {
     })
     app.get('/marked-assignment', logger, verifyToken, async (req, res) => {
       console.log('owner info', req.user);
-      if (req.user.email !== req.query.email) {
+      if (req.user.email !== req.query?.email) {
         return res.status(403).send({ message: 'forbidden access' })
       }
       let query = {};
