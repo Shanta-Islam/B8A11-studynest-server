@@ -86,10 +86,14 @@ async function run() {
       res.clearCookie('token', { maxAge: 0 }).send({ success: true })
     })
     app.get('/assignments', async (req, res) => {
-      // const query = {};
+      let queryObj = {};
+      const dLevel = req.query.dLevel;
+      if(dLevel){
+        queryObj.dLevel = dLevel;
+      }
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
-      const result = await assignmentsCollection.find().skip(page*size).limit(size).toArray();
+      const result = await assignmentsCollection.find(queryObj).skip(page*size).limit(size).toArray();
       res.send(result);
     });
     app.get('/assignmentsCount', async (req, res) => {
