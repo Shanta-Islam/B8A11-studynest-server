@@ -119,7 +119,7 @@ async function run() {
     app.get('/submitted-assignment', async (req, res) => {
       let query = {};
       if (req.query?.status) {
-        query = { statusValue: req.query.status }
+        query = { statusValue: req.query.status}
       }
       const result = await submittedAssignmentCollection.find(query).toArray();
       res.send(result);
@@ -135,7 +135,6 @@ async function run() {
       }
       const result = await markedAssignmentCollection.find(query).toArray();
       res.send(result);
-      // console.log(result)
 
     })
 
