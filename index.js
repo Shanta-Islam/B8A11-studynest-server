@@ -117,7 +117,7 @@ async function run() {
  
     })
     app.get('/submitted-assignment', async (req, res) => {
-      let query = {};
+      let query = {}; 
       if (req.query?.status) {
         query = { statusValue: req.query.status}
       }
