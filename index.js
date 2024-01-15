@@ -15,7 +15,7 @@ app.use(cors(
       'http://localhost:5173',
       'https://studynest-c3658.web.app',
       'https://studynest-c3658.firebaseapp.com'
-      
+
     ],
     methods: 'GET, PATCH, PUT, POST, DELETE',
     credentials: true
@@ -45,14 +45,14 @@ const verifyToken = (req, res, next) => {
   console.log('token in the middleware', token);
   // no token available 
   if (!token) {
-      return res.status(401).send({ message: 'unauthorized access' })
+    return res.status(401).send({ message: 'unauthorized access' })
   }
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-      if (err) {
-          return res.status(401).send({ message: 'unauthorized access' })
-      }
-      req.user = decoded;
-      next();
+    if (err) {
+      return res.status(401).send({ message: 'unauthorized access' })
+    }
+    req.user = decoded;
+    next();
   })
 
 }
@@ -63,20 +63,21 @@ async function run() {
     const assignmentsCollection = client.db('studyNest').collection('assignments');
     const submittedAssignmentCollection = client.db('studyNest').collection('submittedAssignments');
     const markedAssignmentCollection = client.db('studyNest').collection('markedAssignment');
+    const tasksCollection = client.db('studyNest').collection('tasks');
 
 
-     // auth related api
+    // auth related api
     app.post('/jwt', logger, async (req, res) => {
       const user = req.body;
       console.log('user for token', user);
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
 
-    })
-        res.send({ success: true })
+      })
+      res.send({ success: true })
     })
 
 
@@ -88,12 +89,12 @@ async function run() {
     app.get('/assignments', async (req, res) => {
       let queryObj = {};
       const dLevel = req.query.dLevel;
-      if(dLevel){
+      if (dLevel) {
         queryObj.dLevel = dLevel;
       }
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
-      const result = await assignmentsCollection.find(queryObj).skip(page*size).limit(size).toArray();
+      const result = await assignmentsCollection.find(queryObj).skip(page * size).limit(size).toArray();
       res.send(result);
     });
     app.get('/assignmentsCount', async (req, res) => {
@@ -114,12 +115,12 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await submittedAssignmentCollection.findOne(query);
       res.send(result);
- 
+
     })
     app.get('/submitted-assignment', async (req, res) => {
-      let query = {}; 
+      let query = {};
       if (req.query?.status) {
-        query = { statusValue: req.query.status}
+        query = { statusValue: req.query.status }
       }
       const result = await submittedAssignmentCollection.find(query).toArray();
       res.send(result);
@@ -145,13 +146,87 @@ async function run() {
 
     })
 
-    app.post('/submitted-assignment',async (req, res) => {
+    // task api
+    app.get('/task-details/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const product = await tasksCollection.findOne(query);
+      res.send(product);
+    })
+    app.get('/tasks', async (req, res) => {
+      let queryObj = {};
+      const status = req.query.status;
+      if (status) {
+        queryObj.status = status;
+      }
+      const result = await tasksCollection.find(queryObj).toArray();
+      res.send(result);
+
+    })
+    app.get('/completed-tasks/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email, status: 'completed' };
+      const result = await tasksCollection.find(query).toArray();
+      res.send(result);
+
+    })
+    app.post('/task', async (req, res) => {
+      const newAssignment = req.body;
+      const result = await tasksCollection.insertOne(newAssignment);
+      res.send(result);
+
+    })
+    app.patch('/completed-task/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: 'completed'
+        }
+      }
+      const result = await tasksCollection.updateOne(filter, updatedDoc);
+      res.send(result);
+    })
+    app.put('/update-task/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedAssignment = req.body;
+      const task = {
+        $set: {
+          title: updatedAssignment.title,
+          desc: updatedAssignment.desc,
+          marks: updatedAssignment.marks,
+          photo: updatedAssignment.photo,
+          dLevel: updatedAssignment.dLevel,
+          date: updatedAssignment.date
+        }
+      }
+      const result = await tasksCollection.updateOne(filter, task, options);
+      res.send(result);
+    })
+
+    app.delete('/delete-task/:id', async (req, res) => {
+      const id = req.params.id;
+      try {
+        const task = await tasksCollection.findOneAndDelete({ _id: new ObjectId(id), email: req.query?.email });
+        if (task) {
+          res.send(task);
+        } else {
+          res.status(404).json({ message: 'Task not found for the requesting user' });
+        }
+      } catch (err) {
+        res.status(500).json({ message: err.message });
+      }
+    })
+
+    app.post('/submitted-assignment', async (req, res) => {
       const submittedAssign = req.body;
       const result = await submittedAssignmentCollection.insertOne(submittedAssign);
       res.send(result);
     });
 
-    app.post('/marked-assignment',async (req, res) => {
+    app.post('/marked-assignment', async (req, res) => {
       const markedAssign = req.body;
       const result = await markedAssignmentCollection.insertOne(markedAssign);
       res.send(result);
